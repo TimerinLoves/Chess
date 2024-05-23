@@ -59,8 +59,8 @@ starting_board = [
 def main():
     running = True
     selected_square = None
-    last_move = (None, None)  # Initialize last move
-    turn = 'w'  # 'w' for white's turn, 'b' for black's turn
+    last_move = (None, None) 
+    turn = 'w'
     en_passant_target = None
     castling_rights = {(0, 4): ['k', 'q'], (7, 4): ['K', 'Q']}
     clock = pygame.time.Clock()
