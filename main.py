@@ -60,27 +60,30 @@ def main():
         
         if turn == 'b':
             best_move = get_best_move(starting_board, turn)
-            selected_square, target_square = best_move
-            piece = starting_board[selected_square[0]][selected_square[1]]
-            starting_board[target_square[0]][target_square[1]] = piece
-            starting_board[selected_square[0]][selected_square[1]] = '--'
-            last_move = (selected_square, target_square)
-            turn = 'w'
+            if best_move is not None:
+                selected_square, target_square = best_move
+                piece = starting_board[selected_square[0]][selected_square[1]]
+                starting_board[target_square[0]][target_square[1]] = piece
+                starting_board[selected_square[0]][selected_square[1]] = '--'
+                last_move = (selected_square, target_square)
+                turn = 'w'
+            else:
+                print("Black has no legal moves left.")
+                break
 
         draw_board()
         draw_pieces(starting_board, selected_square, last_move)
         pygame.display.flip()
-        clock.tick(30)
+
         winner, reason = game_over(starting_board, turn)
-        
         if winner:
             print(f"The game is over! {winner} wins by {reason}.")
             running = False
-            break
+
+        clock.tick(30)
 
     pygame.quit()
     sys.exit()
-
 
 if __name__ == "__main__":
     main()

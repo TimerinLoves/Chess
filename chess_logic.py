@@ -4,6 +4,9 @@ import sys
 WIDTH, HEIGHT = 512, 512
 WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
 
+turn = 'w'
+
+
 piece_value = {
     'p': 1,
     'n': 3,
@@ -54,8 +57,8 @@ def get_best_move(board, turn):
     best_move = None
     best_score = float('-inf')
 
-    for move in generate_moves(board):
-        new_board = make_move(board, move)
+    for move in generate_moves(board, turn):
+        new_board = make_move(board[:], move)
         score = minimax(new_board, 3, float('-inf'), float('inf'), False, turn)
         if score > best_score:
             best_score = score
@@ -85,7 +88,7 @@ def minimax(board, depth, alpha, beta, maximizing_player, turn):
 
     if maximizing_player:
         max_eval = float('-inf')
-        for move in generate_moves(board):
+        for move in generate_moves(board, turn):
             new_board = make_move(board, move)
             eval = minimax(new_board, depth - 1, alpha, beta, False, 'w' if turn == 'b' else 'b')
             max_eval = max(max_eval, eval)
@@ -95,7 +98,7 @@ def minimax(board, depth, alpha, beta, maximizing_player, turn):
         return max_eval
     else:
         min_eval = float('inf')
-        for move in generate_moves(board):
+        for move in generate_moves(board, turn):
             new_board = make_move(board, move)
             eval = minimax(new_board, depth - 1, alpha, beta, True, 'w' if turn == 'b' else 'b')
             min_eval = min(min_eval, eval)
@@ -131,7 +134,7 @@ def is_checkmate(board, king_position, color):
         for col in range(8):
             piece = board[row][col]
             if piece[0] == color:
-                moves = generate_moves(board, (row, col))
+                moves = generate_moves(board, turn)
                 for move in moves:
                     new_board = make_move(board, move)
                     if not is_check(new_board, king_position, 'b' if color == 'w' else 'w'):
@@ -141,11 +144,11 @@ def is_checkmate(board, king_position, color):
 def is_stalemate(board):
     for row in range(8):
         for col in range(8):
-            if board[row][col].startswith('b'):
-                moves = generate_moves(board)
-                if moves:
-                    return False
+            moves = generate_moves(board, turn)
+            if moves:
+                return False
     return True
+
 
 
 def find_king(board, color):
@@ -156,12 +159,12 @@ def find_king(board, color):
                 return row, col
     return None
 
-def generate_moves(board,position):
+def generate_moves(board, turn):
     moves = []
     for row in range(8):
         for col in range(8):
             piece = board[row][col]
-            if piece.startswith('b'):
+            if piece.startswith(turn):
                 moves.extend(get_piece_moves(board, (row, col)))
     return moves
 
