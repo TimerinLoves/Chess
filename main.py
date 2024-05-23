@@ -1,60 +1,12 @@
 import pygame
 import sys
-from chess_logic import is_valid_move
+from chess_logic import is_valid_move, starting_board, draw_board, draw_pieces, game_over, get_best_move
 
 pygame.init()
 
 WIDTH, HEIGHT = 512, 512
 WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Chess')
-
-chessboard_image = pygame.image.load('images/chessboard.png')
-
-pieces = {
-    'wp': pygame.image.load('images/white/pawn.png'),
-    'wr': pygame.image.load('images/white/rook.png'),
-    'wn': pygame.image.load('images/white/knight.png'),
-    'wb': pygame.image.load('images/white/bishop.png'),
-    'wq': pygame.image.load('images/white/queen.png'),
-    'wk': pygame.image.load('images/white/king.png'),
-    'bp': pygame.image.load('images/black/pawn.png'),
-    'br': pygame.image.load('images/black/rook.png'),
-    'bn': pygame.image.load('images/black/knight.png'),
-    'bb': pygame.image.load('images/black/bishop.png'),
-    'bq': pygame.image.load('images/black/queen.png'),
-    'bk': pygame.image.load('images/black/king.png')
-}
-
-def draw_board():
-    WINDOW.blit(chessboard_image, (0, 0))
-
-def draw_pieces(board, selected_square, last_move):
-    for row in range(8):
-        for col in range(8):
-            piece = board[row][col]
-            if (row, col) == last_move[0]:
-                pygame.draw.rect(WINDOW, (200, 245, 170), (col*64, row*64, 64, 64))
-            if (row, col) == last_move[1]:
-                pygame.draw.rect(WINDOW, (135, 220, 95), (col*64, row*64, 64, 64))
-            if piece != '--':
-                if (row, col) == selected_square:
-                    pygame.draw.rect(WINDOW, (173, 216, 230), (col*64, row*64, 64, 64))
-                WINDOW.blit(pieces[piece], (col*64, row*64))
-
-
-
-starting_board = [
-    ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
-    ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
-    ['--', '--', '--', '--', '--', '--', '--', '--'],
-    ['--', '--', '--', '--', '--', '--', '--', '--'],
-    ['--', '--', '--', '--', '--', '--', '--', '--'],
-    ['--', '--', '--', '--', '--', '--', '--', '--'],
-    ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
-    ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr']
-]
-
-
 
 def main():
     running = True
@@ -105,14 +57,30 @@ def main():
                         selected_square = (row, col)
                 else:
                     selected_square = (row, col)
+        
+        if turn == 'b':
+            best_move = get_best_move(starting_board, turn)
+            selected_square, target_square = best_move
+            piece = starting_board[selected_square[0]][selected_square[1]]
+            starting_board[target_square[0]][target_square[1]] = piece
+            starting_board[selected_square[0]][selected_square[1]] = '--'
+            last_move = (selected_square, target_square)
+            turn = 'w'
 
         draw_board()
         draw_pieces(starting_board, selected_square, last_move)
         pygame.display.flip()
         clock.tick(30)
+        winner, reason = game_over(starting_board, turn)
+        
+        if winner:
+            print(f"The game is over! {winner} wins by {reason}.")
+            running = False
+            break
 
     pygame.quit()
     sys.exit()
+
 
 if __name__ == "__main__":
     main()
